@@ -8,7 +8,8 @@
   // ],
   "vars": {
     "MS_AUTH_URL": "https://ms-auth.agro-ecologica.workers.dev",
-    "MS_REVIEWS_URL": "https://ms-reviews.agro-ecologica.workers.dev"
+    "MS_REVIEWS_URL": "https://ms-reviews.agro-ecologica.workers.dev",
+    "SUPABASE_URL": "https://mgkugvlhfccohhpdiopq.supabase.co"
   }
   // "kv_namespaces": [
   //   {
