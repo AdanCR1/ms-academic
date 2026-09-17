@@ -61,6 +61,10 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: Varia
     });
 
     if (!res.ok) {
+      // AGREGA ESTO PARA DIAGNÓSTICO
+      const errorDetails = await res.text();
+      console.log(`[Fetch Error] Status: ${res.status}, URL: ${requestUrl.toString()}, Body: ${errorDetails}`);
+
       return error(c, 403, 'Usuario no autorizado o inactivo en el sistema');
     }
 
