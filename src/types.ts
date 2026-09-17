@@ -9,8 +9,8 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY: string;
   JWT_SIGNING_KEY: string;
   INTERNAL_SERVICE_SECRET: string;
-  MS_AUTH_URL: string;
-  MS_REVIEWS_URL: string;
+  MS_AUTH: Fetcher;
+  MS_REVIEWS: Fetcher;
 }
 
 export interface Variables {

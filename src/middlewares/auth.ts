@@ -34,25 +34,14 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: Varia
       return error(c, 401, 'El token no contiene un identificador de usuario (sub)');
     }
 
-    // URL base del microservicio de autenticación
-    const rawBase = c.env?.MS_AUTH_URL;
-    const fallbackBase = 'http://127.0.0.1:8787';
-    const baseUrl = (rawBase || fallbackBase).trim().replace(/\/+$/, '');
-
-    const fullPath = `${baseUrl}/internal/users/${encodeURIComponent(String(userId))}/validate`;
-
-    let requestUrl: URL;
-    try {
-      requestUrl = new URL(fullPath);
-    } catch {
-      return error(c, 401, 'URL interna mal formada');
-    }
-
     if (!c.env?.INTERNAL_SERVICE_SECRET) {
       return error(c, 500, 'Configuración incompleta');
     }
 
-    const res = await fetch(requestUrl.toString(), {
+    // Comunicación directa mediante Service Binding
+    const internalPath = `http://ms-auth/internal/users/${encodeURIComponent(String(userId))}/validate`;
+
+    const res = await c.env.MS_AUTH.fetch(internalPath, {
       method: 'GET',
       headers: {
         'X-Internal-Secret': c.env.INTERNAL_SERVICE_SECRET,
@@ -61,10 +50,8 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: Varia
     });
 
     if (!res.ok) {
-      // AGREGA ESTO PARA DIAGNÓSTICO
       const errorDetails = await res.text();
-      console.log(`[Fetch Error] Status: ${res.status}, URL: ${requestUrl.toString()}, Body: ${errorDetails}`);
-
+      console.log(`[Fetch Error] Status: ${res.status}, URL: ${internalPath}, Body: ${errorDetails}`);
       return error(c, 403, 'Usuario no autorizado o inactivo en el sistema');
     }
 
@@ -78,7 +65,8 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: Varia
     });
 
     await next();
-  } catch {
+  } catch (err) {
+    console.error('[AuthMiddleware Error]:', err);
     return error(c, 401, 'Fallo en la validación de identidad');
   }
 };
