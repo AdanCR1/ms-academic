@@ -2,13 +2,14 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ms-academic",
   "main": "src/index.ts",
-  "compatibility_date": "2026-09-15"
+  "compatibility_date": "2026-09-15",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
+  "vars": {
+    "MS_AUTH_URL": "https://ms-auth.agro-ecologica.workers.dev",
+    "MS_REVIEWS_URL": "https://ms-reviews.agro-ecologica.workers.dev"
+  }
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",
