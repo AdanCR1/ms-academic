@@ -6,6 +6,49 @@ import { success, error } from '../utils/response';
 
 export const informesRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
+// 1. Listar todos los informes (GET /api/v1/informes)
+informesRoutes.get('/', async (c) => {
+  const supabase = getSupabaseAdmin(c.env);
+  
+  const { data, error: dbError } = await supabase
+    .from('informes')
+    .select('*')
+    .order('creado_en', { ascending: false });
+
+  if (dbError) {
+    return error(c, 500, 'Error al listar los informes', dbError.message);
+  }
+
+  return success(c, data);
+});
+
+// 2. Obtener un informe específico con sus versiones (GET /api/v1/informes/:id)
+informesRoutes.get('/:id', async (c) => {
+  const informeId = c.req.param('id');
+  const supabase = getSupabaseAdmin(c.env);
+
+  // La consulta trae el informe y anida sus versiones asociadas
+  const { data, error: dbError } = await supabase
+    .from('informes')
+    .select(`
+      *,
+      versiones:informe_versiones(*)
+    `)
+    .eq('id', informeId)
+    .single();
+
+  if (dbError || !data) {
+    return error(c, 404, 'Informe no encontrado');
+  }
+
+  // Ordenamos las versiones de más reciente a más antigua
+  if (data.versiones) {
+    data.versiones.sort((a: any, b: any) => b.numero_version - a.numero_version);
+  }
+
+  return success(c, data);
+});
+
 // Crear informe
 informesRoutes.post('/', requireRole(['investigador', 'auxiliar', 'superadmin']), async (c) => {
   const body = await c.req.json().catch(() => null);
